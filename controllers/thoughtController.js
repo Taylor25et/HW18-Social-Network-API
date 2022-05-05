@@ -4,7 +4,7 @@ module.exports = {
   //get all thoughts
   getThought(req, res) {
     Thought.find()
-      .then((thought) => res.json(thought))
+      .then((thoughts) => res.json(thoughts))
       .catch((err) => res.status(500).json(err));
   },
   getThoughtById(req, res) {
@@ -19,10 +19,20 @@ module.exports = {
   },
   //create thoughts to user
   createThought(req, res) {
-    User.create(req.body)
-      .then((thought) => res.json(thought))
-      .catch((err) => res.status(500).json(err));
+    Thought.create(req.body)
+      .then((thoughts) => {
+          console.log(thoughts)
+          return User.findOneAndUpdate({username: thoughts.username}, {$push: {thoughts: thoughts._id}}, {new: true})
+      })
+      .then((user) => {
+          console.log(user)
+          res.status(200).json(user);
+      })
+      .catch((err) => {
+        res.status(500).json(err);
+      });
   },
+
   //update thought by id
   updateThought(req, res) {
     Thought.findOneAndUpdate(
@@ -51,4 +61,3 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 };
-
