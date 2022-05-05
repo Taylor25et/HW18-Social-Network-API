@@ -2,9 +2,9 @@ const { User, Thought } = require("../models");
 
 module.exports = {
   //get all users
-  getUsers(req, res) {
+  getUser(req, res) {
     User.find()
-      .then((user) => res.json(users))
+      .then((user) => res.json(user))
       .catch((err) => res.status(500).json(err));
   },
   getUserById(req, res) {
