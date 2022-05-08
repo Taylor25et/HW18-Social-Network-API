@@ -23,13 +23,13 @@ module.exports = {
       )
       .catch((err) => res.status(500).json(err));
   },
-  //create users
+  //create a new user
   createUser(req, res) {
     User.create(req.body)
       .then((user) => res.json(user))
       .catch((err) => res.status(500).json(err));
   },
-  //update user by id
+  //update username by user id
   updateUser(req, res) {
     User.findOneAndUpdate(
       { _id: req.params.userId },
@@ -53,6 +53,34 @@ module.exports = {
       )
       .then(() =>
         res.json({ message: "User and their thoughts have been deleted..." })
+      )
+      .catch((err) => res.status(500).json(err));
+  },
+  //add a new friend to a user's friend list
+  addFriend(req, res) {
+    User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $addToSet: { friends: req.body } },
+      { runValidators: true, new: true }
+    )
+    .then((user) =>
+        !user
+          ? res.status(404).json({ message: 'This user does not exist. Unable to add friend...' })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
+   // Remove friend from a user
+   deleteFriend(req, res) {
+    User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $pull: { friend: { friendId: req.params.freiendId } } },
+      { runValidators: true, new: true }
+    )
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: 'This user does not exist. Unable to delete friend...' })
+          : res.json(user)
       )
       .catch((err) => res.status(500).json(err));
   },
