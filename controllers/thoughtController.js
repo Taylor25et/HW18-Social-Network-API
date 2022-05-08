@@ -1,4 +1,5 @@
 const { User, Thought } = require("../models");
+const mongoose = require('mongoose');
 
 module.exports = {
   //get all thoughts
@@ -91,7 +92,7 @@ module.exports = {
    deleteReaction(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { $pull: { reactions: { reactionId: mongoose.Types.ObjectId(req.body.reactionId) } } },
       { runValidators: true, new: true }
     )
       .then((thought) =>
