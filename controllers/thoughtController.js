@@ -74,19 +74,49 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   //adding a reaction to a thought 
-  addReaction(req, res) {
-    Thought.findOneAndUpdate(
-      { _id: req.params.thoughtId },
-      { $addToSet: { reactions: req.params.reactionId } },
-      { runValidators: true, new: true }
-    )
-    .then((thought) =>
-        !thought
-          ? res.status(404).json({ message: 'This thought does not exist. Unable to add reaction...' })
-          : res.json(thought)
-      )
-      .catch((err) => res.status(500).json(err));
+  // addReaction(req, res) {
+  //   Thought.findOneAndUpdate(
+  //     { _id: req.params.thoughtId },
+  //     { $addToSet: { reactions: req.body } },
+  //     { runValidators: true, new: true }
+  //   )
+  //   .then((thought) =>
+  //       !thought
+  //         ? res.status(404).json({ message: 'This thought does not exist. Unable to add a reaction...' })
+  //         : res.json(thought)
+  //     )
+  //     .catch((err) => res.status(500).json(err));
+  // },
+   addReaction(req, res) {
+    Thought.findOne({ _id: req.body.thoughtId })
+      .then((thought) => {
+        if (!thought) {
+          return res.status(404).json({ message: "This thought does not exist. Unable to add a reaction..." });
+        } else {
+          Reaction.create({
+            reactionText: req.body.reactionText,
+            username: user.username,
+          })
+            .then((reaction) => {
+              return Thought.findOneAndUpdate(
+                { _id: req.body.thoughtId },
+                { $addToSet: { reactions: reaction._id } },
+                { runValidators: true, new: true }
+              );
+            })
+            .then((reaction) => res.status(200).json(reaction))
+            .catch((err) => {
+              console.log(err);
+              return res.status(500).json(err);
+            });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(500).json(err);
+      });
   },
+
    // Remove reaction from a thought 
    deleteReaction(req, res) {
     Thought.findOneAndUpdate(
